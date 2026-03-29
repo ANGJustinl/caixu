@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "library_id": "lib_demo_student_001",
+  "diagnosis_id": "diag_internship_20260329",
+  "target_goal": "summer_internship_application",
+  "rule_pack_id": "cn.student.internship.v1",
+  "items": [
+    {
+      "code": "missing_student_status_certificate",
+      "title": "Current Student Status Certificate",
+      "description": "A current student status certificate is required for identity validation.",
+      "severity": "blocking",
+      "asset_type": "proof:student_status_certificate",
+      "required_for": "summer_internship_application",
+      "suggested_action": "Request a current student status certificate."
+    }
+  ],
+  "available_asset_ids": [
+    "asset_cet6_20240315",
+    "asset_transcript_20250220",
+    "asset_id_copy_20260108"
+  ],
+  "gap_summary": "The package is missing a current student status certificate required for identity validation.",
+  "next_actions": [
+    "Request a current student status certificate.",
+    "Re-run package generation after the certificate is added."
+  ],
+  "blocking_level": "partial"
+}

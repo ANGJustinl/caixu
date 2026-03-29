@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "library_id": "lib_demo_student_001",
+  "match_id": "match_cet6_internship_001",
+  "asset_id": "asset_cet6_20240315",
+  "rule_pack_id": "cn.student.internship.v1",
+  "rule_id": "rule_language_proof_optional",
+  "scene_key": "summer_internship_application",
+  "match_status": "matched",
+  "renewable": false,
+  "reusable": true,
+  "required_assets": [
+    "proof:transcript",
+    "proof:id_card_copy"
+  ],
+  "output_requirements": [
+    "language_certificate_copy"
+  ],
+  "notes": "The language certificate is optional but can strengthen the internship application package."
+}

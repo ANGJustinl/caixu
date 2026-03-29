@@ -1,0 +1,7 @@
+{
+  "code": "SQLITE_UNAVAILABLE",
+  "message": "The local SQLite database is unavailable for write operations.",
+  "retryable": true,
+  "file_id": null,
+  "asset_id": null
+}

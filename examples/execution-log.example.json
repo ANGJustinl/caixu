@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "library_id": "lib_demo_student_001",
+  "execution_id": "exec_demo_submit_20260329_001",
+  "package_id": "pkg_internship_20260329",
+  "submission_profile": "judge_demo_v1",
+  "executor": "autoclaw",
+  "status": "partial",
+  "started_at": "2026-03-29T10:30:00+08:00",
+  "finished_at": "2026-03-29T10:31:24+08:00",
+  "steps": [
+    {
+      "step": "open_demo_form",
+      "status": "succeeded",
+      "artifact": null
+    },
+    {
+      "step": "upload_package",
+      "status": "succeeded",
+      "artifact": "summer-internship-application-package.zip"
+    },
+    {
+      "step": "submit_form",
+      "status": "failed",
+      "artifact": "submission_receipt.html"
+    }
+  ],
+  "result_summary": "The package upload succeeded, but the final form submission was blocked by a missing required field.",
+  "submitted_artifacts": [
+    "summer-internship-application-package.zip"
+  ],
+  "failure_reason": "The demo form rejected the request because a required text field was empty."
+}

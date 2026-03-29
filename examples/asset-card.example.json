@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "library_id": "lib_demo_student_001",
+  "asset_id": "asset_cet6_20240315",
+  "material_type": "proof",
+  "title": "CET-6 Score Report",
+  "holder_name": "Demo Student",
+  "issuer_name": "National College English Testing Committee",
+  "issue_date": "2024-03-15",
+  "expiry_date": null,
+  "validity_status": "long_term",
+  "reusable_scenarios": [
+    "summer_internship_application"
+  ],
+  "sensitivity_level": "medium",
+  "source_files": [
+    {
+      "file_id": "file_cet6_pdf_001",
+      "file_name": "cet6-score-report.pdf",
+      "mime_type": "application/pdf"
+    }
+  ],
+  "confidence": 0.97,
+  "normalized_summary": "English proficiency certificate that can be reused in internship applications."
+}

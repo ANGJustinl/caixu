@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "library_id": "lib_demo_student_001",
+  "event_id": "event_student_id_renewal_20260415",
+  "asset_id": "asset_student_id_20220901",
+  "trigger_type": "renewal_window_trigger",
+  "event_status": "recommended",
+  "severity": "warning",
+  "event_date": "2026-03-29",
+  "window_start_date": "2026-04-15",
+  "window_end_date": "2026-06-30",
+  "target_goal": "summer_internship_application",
+  "recommended_action": "Prepare to renew the student ID before the internship application window opens.",
+  "prerequisite_assets": [
+    "proof:student_status_certificate",
+    "proof:id_card_copy"
+  ],
+  "blocking_items": [
+    "Missing a current student status certificate."
+  ],
+  "related_rule_ids": [
+    "rule_internship_identity_validity"
+  ]
+}

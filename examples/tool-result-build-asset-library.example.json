@@ -1,0 +1,76 @@
+{
+  "status": "success",
+  "trace_id": "trace_demo_20260329_001",
+  "run_id": "run_build_asset_library_20260329_001",
+  "data": {
+    "library_id": "lib_demo_student_001",
+    "asset_cards": [
+      {
+        "schema_version": "1.0",
+        "library_id": "lib_demo_student_001",
+        "asset_id": "asset_cet6_20240315",
+        "material_type": "proof",
+        "title": "CET-6 Score Report",
+        "holder_name": "Demo Student",
+        "issuer_name": "National College English Testing Committee",
+        "issue_date": "2024-03-15",
+        "expiry_date": null,
+        "validity_status": "long_term",
+        "reusable_scenarios": [
+          "summer_internship_application"
+        ],
+        "sensitivity_level": "medium",
+        "source_files": [
+          {
+            "file_id": "file_cet6_pdf_001",
+            "file_name": "cet6-score-report.pdf",
+            "mime_type": "application/pdf"
+          }
+        ],
+        "confidence": 0.97,
+        "normalized_summary": "English proficiency certificate that can be reused in internship applications."
+      }
+    ],
+    "merged_assets": [
+      {
+        "schema_version": "1.0",
+        "library_id": "lib_demo_student_001",
+        "merged_asset_id": "merged_cet6_001",
+        "canonical_asset_id": "asset_cet6_20240315",
+        "selected_asset_id": "asset_cet6_20240315",
+        "superseded_asset_ids": [
+          "asset_cet6_scan_legacy"
+        ],
+        "dedupe_strategy": "newer_version_replaces_older",
+        "merge_reason": "A clearer and newer PDF replaces an older scan of the same certificate.",
+        "status": "merged",
+        "version_order": [
+          {
+            "asset_id": "asset_cet6_scan_legacy",
+            "issue_date": "2024-03-15",
+            "expiry_date": null,
+            "source_file_count": 1
+          },
+          {
+            "asset_id": "asset_cet6_20240315",
+            "issue_date": "2024-03-15",
+            "expiry_date": null,
+            "source_file_count": 1
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "total_assets": 1,
+      "merged_groups": 1,
+      "anomalies": 0,
+      "unmerged_assets": 0
+    }
+  },
+  "warnings": [],
+  "errors": [],
+  "next_recommended_skill": [
+    "query-assets",
+    "check-lifecycle"
+  ]
+}

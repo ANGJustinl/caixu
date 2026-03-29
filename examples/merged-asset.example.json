@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "library_id": "lib_demo_student_001",
+  "merged_asset_id": "merged_cet6_001",
+  "canonical_asset_id": "asset_cet6_20240315",
+  "selected_asset_id": "asset_cet6_20240315",
+  "superseded_asset_ids": [
+    "asset_cet6_scan_legacy"
+  ],
+  "dedupe_strategy": "newer_version_replaces_older",
+  "merge_reason": "A clearer and newer PDF replaces an older scan of the same certificate.",
+  "status": "merged",
+  "version_order": [
+    {
+      "asset_id": "asset_cet6_scan_legacy",
+      "issue_date": "2024-03-15",
+      "expiry_date": null,
+      "source_file_count": 1
+    },
+    {
+      "asset_id": "asset_cet6_20240315",
+      "issue_date": "2024-03-15",
+      "expiry_date": null,
+      "source_file_count": 1
+    }
+  ]
+}
