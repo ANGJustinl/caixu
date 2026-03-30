@@ -31,7 +31,14 @@ function parseArgs(argv) {
     runtimeDir: join(repoRoot, ".runtime"),
     judgeDemoUrl: process.env.CAIXU_JUDGE_DEMO_URL ?? "http://127.0.0.1:3000/judge-demo",
     zhipuApiKey: process.env.ZHIPU_API_KEY ?? "",
+    zhipuParserApiKey: process.env.CAIXU_ZHIPU_PARSER_API_KEY ?? "",
+    zhipuOcrApiKey: process.env.CAIXU_ZHIPU_OCR_API_KEY ?? "",
+    zhipuVlmApiKey: process.env.CAIXU_ZHIPU_VLM_API_KEY ?? "",
     parseMode: process.env.CAIXU_PARSE_MODE ?? "auto",
+    zhipuParserMode: process.env.CAIXU_ZHIPU_PARSER_MODE ?? "lite",
+    zhipuOcrEnabled: process.env.CAIXU_ZHIPU_OCR_ENABLED ?? "false",
+    vlmModel: process.env.CAIXU_VLM_MODEL ?? "glm-4.6v",
+    vlmPdfRenderer: process.env.CAIXU_VLM_PDF_RENDERER ?? "pdftoppm",
     skipInstall: false,
     skipVerify: false,
     skipSmoke: false,
@@ -82,8 +89,43 @@ function parseArgs(argv) {
       index += 1;
       continue;
     }
+    if (arg === "--zhipu-parser-api-key") {
+      options.zhipuParserApiKey = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-ocr-api-key") {
+      options.zhipuOcrApiKey = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-vlm-api-key") {
+      options.zhipuVlmApiKey = next ?? "";
+      index += 1;
+      continue;
+    }
     if (arg === "--parse-mode") {
       options.parseMode = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-parser-mode") {
+      options.zhipuParserMode = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-ocr-enabled") {
+      options.zhipuOcrEnabled = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--vlm-model") {
+      options.vlmModel = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--vlm-pdf-renderer") {
+      options.vlmPdfRenderer = next ?? "";
       index += 1;
       continue;
     }
@@ -152,7 +194,14 @@ Options:
   --merge-mcp-config PATH    Merge generated MCP servers into an existing JSON file
   --judge-demo-url URL       Judge demo URL
   --zhipu-api-key KEY        Zhipu API key
+  --zhipu-parser-api-key KEY Parser API key. Falls back to ZHIPU_API_KEY
+  --zhipu-ocr-api-key KEY    OCR API key. Falls back to parser key or ZHIPU_API_KEY
+  --zhipu-vlm-api-key KEY    VLM API key. Falls back to ZHIPU_API_KEY
   --parse-mode MODE          Parse mode. Default: auto
+  --zhipu-parser-mode MODE   Parser mode: lite | export
+  --zhipu-ocr-enabled BOOL   Enable paid layout_parsing OCR: true | false
+  --vlm-model MODEL          VLM fallback model. Default: glm-4.6v
+  --vlm-pdf-renderer NAME    PDF renderer: pdftoppm | pdftocairo
   --skip-install             Skip pnpm install
   --skip-verify             Skip pnpm test/typecheck/build
   --skip-smoke              Skip pnpm smoke:agent
@@ -224,6 +273,13 @@ function writeExecutable(pathname, content) {
 
 function buildEnvFileContent(options) {
   return `export CAIXU_PARSE_MODE=${shellString(options.parseMode)}
+export CAIXU_ZHIPU_PARSER_MODE=${shellString(options.zhipuParserMode)}
+export CAIXU_ZHIPU_OCR_ENABLED=${shellString(options.zhipuOcrEnabled)}
+export CAIXU_VLM_MODEL=${shellString(options.vlmModel)}
+export CAIXU_VLM_PDF_RENDERER=${shellString(options.vlmPdfRenderer)}
+export CAIXU_ZHIPU_PARSER_API_KEY=${shellString(options.zhipuParserApiKey)}
+export CAIXU_ZHIPU_OCR_API_KEY=${shellString(options.zhipuOcrApiKey)}
+export CAIXU_ZHIPU_VLM_API_KEY=${shellString(options.zhipuVlmApiKey)}
 export ZHIPU_API_KEY=${shellString(options.zhipuApiKey)}
 export CAIXU_SQLITE_PATH=${shellString(options.sqlitePath)}
 export CAIXU_JUDGE_DEMO_URL=${shellString(options.judgeDemoUrl)}

@@ -29,7 +29,14 @@ export const parsedFileSchema = z.object({
   parse_status: z.enum(["parsed", "binary_only"]),
   extracted_text: z.string().nullable(),
   extracted_summary: z.string().nullable(),
-  provider: z.enum(["local", "zhipu"])
+  provider: z.enum([
+    "local",
+    "zhipu_parser_lite",
+    "zhipu_parser_export",
+    "zhipu_ocr",
+    "zhipu_vlm",
+    "hybrid"
+  ])
 });
 
 export const assetCardSchema = z.object({

@@ -30,8 +30,15 @@ function parseArgs(argv) {
     autoClawHome: process.env.CAIXU_AUTOCLAW_HOME ?? "",
     judgeDemoUrl: process.env.CAIXU_JUDGE_DEMO_URL ?? "",
     zhipuApiKey: process.env.ZHIPU_API_KEY ?? "",
+    zhipuParserApiKey: process.env.CAIXU_ZHIPU_PARSER_API_KEY ?? "",
+    zhipuOcrApiKey: process.env.CAIXU_ZHIPU_OCR_API_KEY ?? "",
+    zhipuVlmApiKey: process.env.CAIXU_ZHIPU_VLM_API_KEY ?? "",
     sqlitePath: process.env.CAIXU_SQLITE_PATH ?? "",
     parseMode: process.env.CAIXU_PARSE_MODE ?? "",
+    zhipuParserMode: process.env.CAIXU_ZHIPU_PARSER_MODE ?? "",
+    zhipuOcrEnabled: process.env.CAIXU_ZHIPU_OCR_ENABLED ?? "",
+    vlmModel: process.env.CAIXU_VLM_MODEL ?? "",
+    vlmPdfRenderer: process.env.CAIXU_VLM_PDF_RENDERER ?? "",
     yes: false
   };
 
@@ -65,6 +72,21 @@ function parseArgs(argv) {
       index += 1;
       continue;
     }
+    if (arg === "--zhipu-parser-api-key") {
+      options.zhipuParserApiKey = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-ocr-api-key") {
+      options.zhipuOcrApiKey = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-vlm-api-key") {
+      options.zhipuVlmApiKey = next ?? "";
+      index += 1;
+      continue;
+    }
     if (arg === "--sqlite-path") {
       options.sqlitePath = next ?? "";
       index += 1;
@@ -72,6 +94,26 @@ function parseArgs(argv) {
     }
     if (arg === "--parse-mode") {
       options.parseMode = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-parser-mode") {
+      options.zhipuParserMode = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--zhipu-ocr-enabled") {
+      options.zhipuOcrEnabled = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--vlm-model") {
+      options.vlmModel = next ?? "";
+      index += 1;
+      continue;
+    }
+    if (arg === "--vlm-pdf-renderer") {
+      options.vlmPdfRenderer = next ?? "";
       index += 1;
       continue;
     }
@@ -90,8 +132,15 @@ Options:
   --autoclaw-home PATH   Explicit AutoClaw profile directory. Default: ~/.openclaw-autoclaw
   --judge-demo-url URL   Judge demo URL
   --zhipu-api-key KEY    Zhipu API key for live OCR
+  --zhipu-parser-api-key KEY  Zhipu parser key. Falls back to ZHIPU_API_KEY
+  --zhipu-ocr-api-key KEY     Zhipu OCR key. Falls back to parser key or ZHIPU_API_KEY
+  --zhipu-vlm-api-key KEY     Zhipu VLM key. Falls back to ZHIPU_API_KEY
   --sqlite-path PATH     SQLite file path
   --parse-mode MODE      Parse mode. Default: auto
+  --zhipu-parser-mode    Parser mode: lite or export. Default: lite
+  --zhipu-ocr-enabled    Enable paid layout_parsing OCR: true or false. Default: false
+  --vlm-model MODEL      VLM fallback model. Default: glm-4.6v
+  --vlm-pdf-renderer     PDF renderer for VLM fallback: pdftoppm or pdftocairo
   --yes                  Non-interactive mode. Use defaults and overwrite after prompting logic
   --help                 Show this help
 `);
@@ -200,8 +249,15 @@ async function main() {
     const baseRuntime = resolveRuntimeConfig(paths, {
       judgeDemoUrl: options.judgeDemoUrl || undefined,
       zhipuApiKey: options.zhipuApiKey || undefined,
+      zhipuParserApiKey: options.zhipuParserApiKey || undefined,
+      zhipuOcrApiKey: options.zhipuOcrApiKey || undefined,
+      zhipuVlmApiKey: options.zhipuVlmApiKey || undefined,
       sqlitePath: options.sqlitePath || undefined,
-      parseMode: options.parseMode || undefined
+      parseMode: options.parseMode || undefined,
+      zhipuParserMode: options.zhipuParserMode || undefined,
+      zhipuOcrEnabled: options.zhipuOcrEnabled || undefined,
+      vlmModel: options.vlmModel || undefined,
+      vlmPdfRenderer: options.vlmPdfRenderer || undefined
     });
 
     const commandChecks = [
@@ -355,6 +411,25 @@ async function main() {
     const runtimeConfig = {
       ...baseRuntime,
       parseMode: await promptText(rl, "CAIXU_PARSE_MODE", baseRuntime.parseMode, options),
+      zhipuParserMode: await promptText(
+        rl,
+        "CAIXU_ZHIPU_PARSER_MODE",
+        baseRuntime.zhipuParserMode,
+        options
+      ),
+      zhipuOcrEnabled: await promptText(
+        rl,
+        "CAIXU_ZHIPU_OCR_ENABLED",
+        baseRuntime.zhipuOcrEnabled,
+        options
+      ),
+      vlmModel: await promptText(rl, "CAIXU_VLM_MODEL", baseRuntime.vlmModel, options),
+      vlmPdfRenderer: await promptText(
+        rl,
+        "CAIXU_VLM_PDF_RENDERER",
+        baseRuntime.vlmPdfRenderer,
+        options
+      ),
       judgeDemoUrl: await promptText(
         rl,
         "CAIXU_JUDGE_DEMO_URL",
@@ -372,6 +447,27 @@ async function main() {
         "ZHIPU_API_KEY",
         baseRuntime.zhipuApiKey ? `${baseRuntime.zhipuApiKey.slice(0, 4)}***` : "",
         baseRuntime.zhipuApiKey,
+        options
+      ),
+      zhipuParserApiKey: await promptSecret(
+        rl,
+        "CAIXU_ZHIPU_PARSER_API_KEY",
+        baseRuntime.zhipuParserApiKey ? `${baseRuntime.zhipuParserApiKey.slice(0, 4)}***` : "",
+        baseRuntime.zhipuParserApiKey,
+        options
+      ),
+      zhipuOcrApiKey: await promptSecret(
+        rl,
+        "CAIXU_ZHIPU_OCR_API_KEY",
+        baseRuntime.zhipuOcrApiKey ? `${baseRuntime.zhipuOcrApiKey.slice(0, 4)}***` : "",
+        baseRuntime.zhipuOcrApiKey,
+        options
+      ),
+      zhipuVlmApiKey: await promptSecret(
+        rl,
+        "CAIXU_ZHIPU_VLM_API_KEY",
+        baseRuntime.zhipuVlmApiKey ? `${baseRuntime.zhipuVlmApiKey.slice(0, 4)}***` : "",
+        baseRuntime.zhipuVlmApiKey,
         options
       )
     };

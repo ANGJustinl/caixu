@@ -84,13 +84,13 @@ describe("@caixu/contracts", () => {
           parse_status: "parsed",
           extracted_text: "ID CARD",
           extracted_summary: "OCR text",
-          provider: "zhipu"
+          provider: "zhipu_parser_lite"
         }
       ],
       failed_files: []
     });
 
-    expect(parsed.parsed_files[1]?.provider).toBe("zhipu");
+    expect(parsed.parsed_files[1]?.provider).toBe("zhipu_parser_lite");
   });
 
   it("validates a rule profile bundle", () => {

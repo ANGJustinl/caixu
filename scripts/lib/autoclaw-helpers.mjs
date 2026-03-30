@@ -22,6 +22,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, "../..");
 export const defaultJudgeDemoUrl = "http://127.0.0.1:3000/judge-demo";
 export const defaultParseMode = "auto";
+export const defaultZhipuParserMode = "lite";
+export const defaultZhipuOcrEnabled = "false";
+export const defaultVlmModel = "glm-4.6v";
+export const defaultVlmPdfRenderer = "pdftoppm";
 export const expectedSkillNames = [
   "ingest-materials",
   "build-asset-library",
@@ -165,6 +169,13 @@ export function shellQuote(value) {
 export function buildEnvFileContent(config) {
   return [
     `export CAIXU_PARSE_MODE=${shellQuote(config.parseMode ?? defaultParseMode)}`,
+    `export CAIXU_ZHIPU_PARSER_MODE=${shellQuote(config.zhipuParserMode ?? defaultZhipuParserMode)}`,
+    `export CAIXU_ZHIPU_OCR_ENABLED=${shellQuote(config.zhipuOcrEnabled ?? defaultZhipuOcrEnabled)}`,
+    `export CAIXU_VLM_MODEL=${shellQuote(config.vlmModel ?? defaultVlmModel)}`,
+    `export CAIXU_VLM_PDF_RENDERER=${shellQuote(config.vlmPdfRenderer ?? defaultVlmPdfRenderer)}`,
+    `export CAIXU_ZHIPU_PARSER_API_KEY=${shellQuote(config.zhipuParserApiKey ?? "")}`,
+    `export CAIXU_ZHIPU_OCR_API_KEY=${shellQuote(config.zhipuOcrApiKey ?? "")}`,
+    `export CAIXU_ZHIPU_VLM_API_KEY=${shellQuote(config.zhipuVlmApiKey ?? "")}`,
     `export ZHIPU_API_KEY=${shellQuote(config.zhipuApiKey ?? "")}`,
     `export CAIXU_SQLITE_PATH=${shellQuote(config.sqlitePath)}`,
     `export CAIXU_JUDGE_DEMO_URL=${shellQuote(config.judgeDemoUrl ?? defaultJudgeDemoUrl)}`,
@@ -221,11 +232,46 @@ export function resolveRuntimeConfig(paths, overrides = {}) {
     process.env.CAIXU_PARSE_MODE ??
     existingEnv.CAIXU_PARSE_MODE ??
     defaultParseMode;
+  const zhipuParserMode =
+    overrides.zhipuParserMode ??
+    process.env.CAIXU_ZHIPU_PARSER_MODE ??
+    existingEnv.CAIXU_ZHIPU_PARSER_MODE ??
+    defaultZhipuParserMode;
+  const zhipuOcrEnabled =
+    overrides.zhipuOcrEnabled ??
+    process.env.CAIXU_ZHIPU_OCR_ENABLED ??
+    existingEnv.CAIXU_ZHIPU_OCR_ENABLED ??
+    defaultZhipuOcrEnabled;
+  const vlmModel =
+    overrides.vlmModel ??
+    process.env.CAIXU_VLM_MODEL ??
+    existingEnv.CAIXU_VLM_MODEL ??
+    defaultVlmModel;
+  const vlmPdfRenderer =
+    overrides.vlmPdfRenderer ??
+    process.env.CAIXU_VLM_PDF_RENDERER ??
+    existingEnv.CAIXU_VLM_PDF_RENDERER ??
+    defaultVlmPdfRenderer;
   const zhipuApiKey =
     overrides.zhipuApiKey ??
     process.env.ZHIPU_API_KEY ??
     existingEnv.ZHIPU_API_KEY ??
     "";
+  const zhipuParserApiKey =
+    overrides.zhipuParserApiKey ??
+    process.env.CAIXU_ZHIPU_PARSER_API_KEY ??
+    existingEnv.CAIXU_ZHIPU_PARSER_API_KEY ??
+    zhipuApiKey;
+  const zhipuOcrApiKey =
+    overrides.zhipuOcrApiKey ??
+    process.env.CAIXU_ZHIPU_OCR_API_KEY ??
+    existingEnv.CAIXU_ZHIPU_OCR_API_KEY ??
+    zhipuParserApiKey;
+  const zhipuVlmApiKey =
+    overrides.zhipuVlmApiKey ??
+    process.env.CAIXU_ZHIPU_VLM_API_KEY ??
+    existingEnv.CAIXU_ZHIPU_VLM_API_KEY ??
+    zhipuApiKey;
   const sqlitePath =
     overrides.sqlitePath ??
     process.env.CAIXU_SQLITE_PATH ??
@@ -239,6 +285,13 @@ export function resolveRuntimeConfig(paths, overrides = {}) {
 
   return {
     parseMode,
+    zhipuParserMode,
+    zhipuOcrEnabled,
+    vlmModel,
+    vlmPdfRenderer,
+    zhipuParserApiKey,
+    zhipuOcrApiKey,
+    zhipuVlmApiKey,
     zhipuApiKey,
     sqlitePath: toAbsolutePath(sqlitePath),
     judgeDemoUrl,
@@ -295,6 +348,19 @@ export function buildMcpServerSpecs(_runtimePaths, runtimeConfig) {
       args: [join(repoRoot, "caixu-ocr-mcp", "dist", "index.js")],
       env: {
         CAIXU_PARSE_MODE: runtimeConfig.parseMode,
+        CAIXU_ZHIPU_PARSER_MODE: runtimeConfig.zhipuParserMode,
+        CAIXU_ZHIPU_OCR_ENABLED: runtimeConfig.zhipuOcrEnabled,
+        CAIXU_VLM_MODEL: runtimeConfig.vlmModel,
+        CAIXU_VLM_PDF_RENDERER: runtimeConfig.vlmPdfRenderer,
+        ...(runtimeConfig.zhipuParserApiKey
+          ? { CAIXU_ZHIPU_PARSER_API_KEY: runtimeConfig.zhipuParserApiKey }
+          : {}),
+        ...(runtimeConfig.zhipuOcrApiKey
+          ? { CAIXU_ZHIPU_OCR_API_KEY: runtimeConfig.zhipuOcrApiKey }
+          : {}),
+        ...(runtimeConfig.zhipuVlmApiKey
+          ? { CAIXU_ZHIPU_VLM_API_KEY: runtimeConfig.zhipuVlmApiKey }
+          : {}),
         ...(runtimeConfig.zhipuApiKey
           ? { ZHIPU_API_KEY: runtimeConfig.zhipuApiKey }
           : {})
@@ -533,6 +599,13 @@ export function writeJson(pathname, value) {
 export function summarizeRuntimeConfig(runtimeConfig) {
   return {
     parse_mode: runtimeConfig.parseMode,
+    zhipu_parser_mode: runtimeConfig.zhipuParserMode,
+    zhipu_ocr_enabled: runtimeConfig.zhipuOcrEnabled,
+    vlm_model: runtimeConfig.vlmModel,
+    vlm_pdf_renderer: runtimeConfig.vlmPdfRenderer,
+    zhipu_parser_api_key: maskSecret(runtimeConfig.zhipuParserApiKey),
+    zhipu_ocr_api_key: maskSecret(runtimeConfig.zhipuOcrApiKey),
+    zhipu_vlm_api_key: maskSecret(runtimeConfig.zhipuVlmApiKey),
     zhipu_api_key: maskSecret(runtimeConfig.zhipuApiKey),
     sqlite_path: runtimeConfig.sqlitePath,
     judge_demo_url: runtimeConfig.judgeDemoUrl
@@ -708,13 +781,26 @@ export async function runDoctorSuite(paths, runtimeConfig) {
     );
   }
 
-  if (!runtimeConfig.zhipuApiKey) {
+  if (!runtimeConfig.zhipuParserApiKey && !runtimeConfig.zhipuOcrApiKey && !runtimeConfig.zhipuVlmApiKey) {
     issues.push(
       buildIssue(
         "warning",
         "ZHIPU_API_KEY_MISSING",
-        "ZHIPU_API_KEY is empty. Text parsing still works, but png/jpg/jpeg/pdf live parsing will fail.",
-        "Set ZHIPU_API_KEY in caixu.env and rerun setup or doctor."
+        "No parser/OCR/VLM API key is configured. Local text parsing still works, but all remote branches will fail in auto mode.",
+        "Set CAIXU_ZHIPU_PARSER_API_KEY, CAIXU_ZHIPU_OCR_API_KEY, CAIXU_ZHIPU_VLM_API_KEY, or fallback ZHIPU_API_KEY in caixu.env."
+      )
+    );
+  }
+
+  const configuredPdfRenderer = runtimeConfig.vlmPdfRenderer || defaultVlmPdfRenderer;
+  const rendererCheck = runProcess(configuredPdfRenderer, ["-h"]);
+  if (!rendererCheck.ok) {
+    issues.push(
+      buildIssue(
+        runtimeConfig.zhipuOcrEnabled === "false" ? "error" : "warning",
+        "PDF_RENDERER_MISSING",
+        `Configured PDF renderer is not available: ${configuredPdfRenderer}`,
+        `Install ${configuredPdfRenderer} or set CAIXU_VLM_PDF_RENDERER to an available renderer before using PDF VLM fallback.`
       )
     );
   }
@@ -812,7 +898,7 @@ export async function runDoctorSuite(paths, runtimeConfig) {
       );
     }
 
-    if (runtimeConfig.zhipuApiKey && fileExists(paths.fixturePngPath)) {
+    if ((runtimeConfig.zhipuOcrApiKey || runtimeConfig.zhipuVlmApiKey || runtimeConfig.zhipuApiKey) && fileExists(paths.fixturePngPath)) {
       const liveSmoke = runProcess(
         "mcporter",
         [
@@ -837,11 +923,12 @@ export async function runDoctorSuite(paths, runtimeConfig) {
             "warning",
             "OCR_MCP_LIVE_SMOKE_FAILED",
             "Live OCR smoke on fixtures/materials/ocr-smoke.png failed.",
-            "Check ZHIPU_API_KEY, network access, and the OCR MCP live parser."
+            "Check ZHIPU_API_KEY, network access, and the OCR MCP remote parser/OCR pipeline."
           )
         );
       }
     }
+
   }
 
   return {
