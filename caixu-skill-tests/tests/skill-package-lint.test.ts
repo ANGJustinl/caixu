@@ -1,18 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-
-const repoRoot = join(import.meta.dirname, "..", "..");
-
-const skills = [
-  "caixu-ingest-materials",
-  "caixu-build-asset-library",
-  "caixu-maintain-asset-library",
-  "caixu-query-assets",
-  "caixu-check-lifecycle",
-  "caixu-build-package",
-  "caixu-submit-demo"
-] as const;
+import { repoRoot, skillSpecs } from "../../scripts/lib/skill-specs.mjs";
 
 const scriptedSkills = new Set([
   "caixu-check-lifecycle",
@@ -29,8 +18,8 @@ const structuredOutputSkills = new Set([
   "caixu-submit-demo"
 ]);
 
-function read(relativePath: string): string {
-  return readFileSync(join(repoRoot, relativePath), "utf8");
+function read(pathname: string): string {
+  return readFileSync(pathname, "utf8");
 }
 
 function parseFrontmatter(text: string): Record<string, string> {
@@ -60,34 +49,38 @@ function referencedRelativePaths(text: string): string[] {
 
 describe("skill package lint", () => {
   it("every skill package includes self-contained metadata and references", () => {
-    for (const skill of skills) {
-      const skillPath = `${skill}/SKILL.md`;
-      const openaiYamlPath = `${skill}/agents/openai.yaml`;
-      const workflowPath = `${skill}/references/workflow.md`;
-      const contractsPath = `${skill}/references/tool-contracts.md`;
-      const failureModesPath = `${skill}/references/failure-modes.md`;
+    for (const skill of skillSpecs) {
+      const openaiYamlPath = join(skill.sourceDir, "agents", "openai.yaml");
+      const workflowPath = join(skill.sourceDir, "references", "workflow.md");
+      const contractsPath = join(skill.sourceDir, "references", "tool-contracts.md");
+      const failureModesPath = join(skill.sourceDir, "references", "failure-modes.md");
 
-      expect(existsSync(join(repoRoot, skillPath)), `${skillPath} should exist`).toBe(true);
-      expect(existsSync(join(repoRoot, openaiYamlPath)), `${openaiYamlPath} should exist`).toBe(true);
-      expect(existsSync(join(repoRoot, workflowPath)), `${workflowPath} should exist`).toBe(true);
-      expect(existsSync(join(repoRoot, contractsPath)), `${contractsPath} should exist`).toBe(true);
-      expect(existsSync(join(repoRoot, failureModesPath)), `${failureModesPath} should exist`).toBe(true);
+      expect(existsSync(skill.skillFile), `${skill.skillFile} should exist`).toBe(true);
+      expect(existsSync(openaiYamlPath), `${openaiYamlPath} should exist`).toBe(true);
+      expect(existsSync(workflowPath), `${workflowPath} should exist`).toBe(true);
+      expect(existsSync(contractsPath), `${contractsPath} should exist`).toBe(true);
+      expect(existsSync(failureModesPath), `${failureModesPath} should exist`).toBe(true);
     }
   });
 
   it("frontmatter names match directory names and descriptions are explicit", () => {
-    for (const skill of skills) {
-      const skillText = read(`${skill}/SKILL.md`);
+    for (const skill of skillSpecs) {
+      const skillText = read(skill.skillFile);
       const frontmatter = parseFrontmatter(skillText);
-      expect(frontmatter.name).toBe(skill);
+      expect(frontmatter.name).toBe(skill.skillName);
       expect(frontmatter.description?.length ?? 0).toBeGreaterThan(20);
       expect(frontmatter.description).toContain("Use when");
+      if (skill.skillName === "caixu-skill") {
+        expect(frontmatter.description).toContain("把这些材料建成资产库");
+      } else {
+        expect(frontmatter.description).toContain("Prefer caixu-skill");
+      }
     }
   });
 
   it("openai metadata exposes display name and short description", () => {
-    for (const skill of skills) {
-      const text = read(`${skill}/agents/openai.yaml`);
+    for (const skill of skillSpecs) {
+      const text = read(join(skill.sourceDir, "agents", "openai.yaml"));
       expect(text).toContain("interface:");
       expect(text).toContain("display_name:");
       expect(text).toContain("short_description:");
@@ -95,39 +88,55 @@ describe("skill package lint", () => {
   });
 
   it("all referenced references and scripts exist", () => {
-    for (const skill of skills) {
-      const skillText = read(`${skill}/SKILL.md`);
+    for (const skill of skillSpecs) {
+      const skillText = read(skill.skillFile);
       for (const relativePath of referencedRelativePaths(skillText)) {
         expect(
-          existsSync(join(repoRoot, skill, relativePath)),
-          `${skill} references missing path ${relativePath}`
+          existsSync(join(skill.sourceDir, relativePath)),
+          `${skill.skillName} references missing path ${relativePath}`
         ).toBe(true);
       }
     }
   });
 
   it("only fragile skills include scripts, and they mention them explicitly", () => {
-    for (const skill of skills) {
-      const skillText = read(`${skill}/SKILL.md`);
-      const scriptsDir = join(repoRoot, skill, "scripts");
-      if (scriptedSkills.has(skill)) {
-        expect(existsSync(scriptsDir), `${skill} should include scripts/`).toBe(true);
+    for (const skill of skillSpecs) {
+      const skillText = read(skill.skillFile);
+      const scriptsDir = join(skill.sourceDir, "scripts");
+      if (scriptedSkills.has(skill.skillName)) {
+        expect(existsSync(scriptsDir), `${skill.skillName} should include scripts/`).toBe(true);
         expect(skillText).toContain("scripts/");
+      } else if (skill.packageType === "directory") {
+        expect(existsSync(scriptsDir), `${skill.skillName} should not include scripts/`).toBe(false);
       } else {
-        expect(existsSync(scriptsDir), `${skill} should not include scripts/`).toBe(false);
+        expect(skillText).not.toContain("(scripts/");
       }
     }
   });
 
   it("structured-output skills include output patterns and reference them explicitly", () => {
-    for (const skill of structuredOutputSkills) {
-      const skillText = read(`${skill}/SKILL.md`);
-      const outputPatternsPath = `${skill}/references/output-patterns.md`;
+    for (const skill of skillSpecs.filter((spec) => structuredOutputSkills.has(spec.skillName))) {
+      const skillText = read(skill.skillFile);
+      const outputPatternsPath = join(skill.sourceDir, "references", "output-patterns.md");
       expect(
-        existsSync(join(repoRoot, outputPatternsPath)),
+        existsSync(outputPatternsPath),
         `${outputPatternsPath} should exist`
       ).toBe(true);
       expect(skillText).toContain("references/output-patterns.md");
     }
+  });
+
+  it("root caixu-skill only treats root SKILL.md, agents, and references as skill resources", () => {
+    const rootSkill = skillSpecs.find((skill) => skill.skillName === "caixu-skill");
+    expect(rootSkill).toBeTruthy();
+    const skillText = read(rootSkill!.skillFile);
+    const references = referencedRelativePaths(skillText);
+
+    expect(rootSkill!.packageType).toBe("root");
+    expect(references.every((reference) => reference.startsWith("references/"))).toBe(true);
+    expect(skillText).not.toContain("(docs/");
+    expect(skillText).not.toContain("(scripts/");
+    expect(existsSync(join(repoRoot, "scripts"))).toBe(true);
+    expect(existsSync(join(repoRoot, "docs"))).toBe(true);
   });
 });

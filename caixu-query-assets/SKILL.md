@@ -1,6 +1,6 @@
 ---
 name: caixu-query-assets
-description: Use when the user wants to search or filter an existing 材序 asset library by library_id, material type, keyword, reusable scenario, or validity status. This skill normalizes filters into canonical values, runs deterministic queries through caixu-data-mcp, and returns stored asset cards and merge groups without re-running extraction or agent judgment.
+description: "Use when the user wants to search or filter an existing 材序 asset library at the query stage, including “查我有哪些材料”“看哪些可复用”“按类型筛资产”. Prefer caixu-skill when the user asks for the full end-to-end mainline or is unsure which stage to run. This skill normalizes filters into canonical values, runs deterministic queries through caixu-data-mcp, and returns stored asset cards and merge groups without re-running extraction or agent judgment."
 ---
 
 # query-assets

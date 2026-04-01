@@ -1,0 +1,4 @@
+interface:
+  display_name: "Caixu Mainline"
+  short_description: "Route end-to-end material workflows to the right current phase skill"
+  default_prompt: "Use $caixu-skill as the main entry for 材序 when the user describes the whole workflow or does not know which phase to run, route only to the current child skill, explain the stage boundary and next step, and do not directly run OCR, database, packaging, or browser actions."

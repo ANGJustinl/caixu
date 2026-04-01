@@ -15,11 +15,9 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { expectedSkillNames, listableSkillNames, repoRoot, skillSpecs } from "./skill-specs.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-export const repoRoot = resolve(__dirname, "../..");
+export { expectedSkillNames, repoRoot, skillSpecs };
 export const defaultJudgeDemoUrl = "http://127.0.0.1:3000/judge-demo";
 export const defaultParseMode = "auto";
 export const defaultFileBatchSize = "6";
@@ -41,21 +39,6 @@ export const defaultZhipuHttpMaxAttempts = "4";
 export const defaultZhipuHttpBaseDelayMs = "2000";
 export const defaultZhipuHttpMaxDelayMs = "20000";
 export const defaultZhipuMinIntervalMs = "1500";
-export const expectedSkillNames = [
-  "ingest-materials",
-  "build-asset-library",
-  "maintain-asset-library",
-  "query-assets",
-  "check-lifecycle",
-  "build-package",
-  "submit-demo"
-];
-
-export const skillSpecs = expectedSkillNames.map((name) => ({
-  name,
-  sourceDir: join(repoRoot, `caixu-${name}`),
-  skillFile: join(repoRoot, `caixu-${name}`, "SKILL.md")
-}));
 
 function toAbsolutePath(pathname) {
   return pathname ? resolve(pathname) : pathname;
@@ -827,17 +810,17 @@ export async function runDoctorSuite(paths, runtimeConfig) {
     ? parsedSkillsList.skills.map((skill) => String(skill.name))
     : [];
 
-  for (const skillName of expectedSkillNames) {
-    const targetDir = join(paths.managedSkillsDir, skillName);
-    const linkStatus = inspectSkillLink(targetDir, join(repoRoot, `caixu-${skillName}`));
-    const acceptableSkillNames = new Set([skillName, `caixu-${skillName}`]);
+  for (const spec of skillSpecs) {
+    const targetDir = join(paths.managedSkillsDir, spec.managedDirName);
+    const linkStatus = inspectSkillLink(targetDir, spec.sourceDir);
+    const acceptableSkillNames = new Set(listableSkillNames(spec));
     if (linkStatus.status === "missing") {
       issues.push(
         buildIssue(
           "error",
           "SKILL_MISSING",
-          `Managed skill is missing: ${skillName}`,
-          `Run pnpm autoclaw:setup to link ${skillName} into ${paths.managedSkillsDir}.`
+          `Managed skill is missing: ${spec.managedDirName}`,
+          `Run pnpm autoclaw:setup to link ${spec.managedDirName} into ${paths.managedSkillsDir}.`
         )
       );
     } else if (linkStatus.status === "wrong_symlink" || linkStatus.status === "occupied_path") {
@@ -846,7 +829,7 @@ export async function runDoctorSuite(paths, runtimeConfig) {
           "error",
           "SKILL_CONFLICT",
           `Managed skill path is occupied or points elsewhere: ${targetDir}`,
-          `Replace ${targetDir} with a symlink to ${join(repoRoot, `caixu-${skillName}`)}.`
+          `Replace ${targetDir} with a symlink to ${spec.sourceDir}.`
         )
       );
     } else if (
@@ -857,7 +840,7 @@ export async function runDoctorSuite(paths, runtimeConfig) {
         buildIssue(
           "warning",
           "SKILL_NOT_LISTED",
-          `Skill symlink exists but openclaw skills list does not show ${skillName} or caixu-${skillName}.`,
+          `Skill symlink exists but openclaw skills list does not show ${listableSkillNames(spec).join(" or ")}.`,
           "Run openclaw --profile autoclaw skills check and inspect SKILL.md formatting."
         )
       );

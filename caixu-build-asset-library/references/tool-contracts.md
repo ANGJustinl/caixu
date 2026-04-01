@@ -5,6 +5,7 @@
 - `BuildAssetLibraryData`
 - `asset_card`
 - `merged_asset`
+- `pipeline_run`
 
 ## Required output fields
 
@@ -15,6 +16,12 @@
 - `data.summary.merged_groups`
 - `data.summary.anomalies`
 - `data.summary.unmerged_assets`
+
+## Pipeline persistence
+
+- 标准执行路径先创建 `build_asset_library` 的 `pipeline_run`
+- 每个 batch / persist 阶段追加 `append_pipeline_step`
+- 成功、partial、failed 都必须调用 `complete_pipeline_run`
 
 ## Document triage categories
 

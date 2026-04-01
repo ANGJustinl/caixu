@@ -3,20 +3,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(__dirname, "..");
-
-const skillSpecs = [
-  { name: "ingest-materials", dir: "caixu-ingest-materials" },
-  { name: "build-asset-library", dir: "caixu-build-asset-library" },
-  { name: "maintain-asset-library", dir: "caixu-maintain-asset-library" },
-  { name: "query-assets", dir: "caixu-query-assets" },
-  { name: "check-lifecycle", dir: "caixu-check-lifecycle" },
-  { name: "build-package", dir: "caixu-build-package" },
-  { name: "submit-demo", dir: "caixu-submit-demo" }
-];
+import { repoRoot, skillSpecs } from "./lib/skill-specs.mjs";
 
 function fail(message) {
   console.error(`ERROR: ${message}`);
@@ -348,9 +335,8 @@ function validateRepoShape() {
   }
 
   for (const skill of skillSpecs) {
-    const skillFile = join(repoRoot, skill.dir, "SKILL.md");
-    if (!existsSync(skillFile)) {
-      fail(`Required skill file is missing: ${skillFile}`);
+    if (!existsSync(skill.skillFile)) {
+      fail(`Required skill file is missing: ${skill.skillFile}`);
     }
   }
 }
@@ -468,9 +454,12 @@ function buildSkillsManifest() {
     generated_at: new Date().toISOString(),
     repo_root: repoRoot,
     skills: skillSpecs.map((spec) => ({
-      name: spec.name,
-      directory: join(repoRoot, spec.dir),
-      skill_file: join(repoRoot, spec.dir, "SKILL.md")
+      name: spec.skillName,
+      managed_dir_name: spec.managedDirName,
+      route_name: spec.routeName,
+      directory: spec.sourceDir,
+      skill_file: spec.skillFile,
+      package_type: spec.packageType
     }))
   };
 }
@@ -493,8 +482,10 @@ function buildReport(options, launchScripts) {
       data: launchScripts.dataScript
     },
     skills: skillSpecs.map((spec) => ({
-      name: spec.name,
-      directory: join(repoRoot, spec.dir)
+      name: spec.skillName,
+      managed_dir_name: spec.managedDirName,
+      directory: spec.sourceDir,
+      package_type: spec.packageType
     })),
     verification: {
       install_ran: !options.skipInstall,
@@ -506,7 +497,7 @@ function buildReport(options, launchScripts) {
       `bash ${launchScripts.ocrScript}`,
       `bash ${launchScripts.dataScript}`,
       `Import ${options.mcpConfigOut} or merge it into your AutoClaw/OpenClaw MCP config.`,
-      `Register the 6 skills listed in ${options.skillsManifestOut}.`
+      `Register the 8 skills listed in ${options.skillsManifestOut}.`
     ]
   };
 }

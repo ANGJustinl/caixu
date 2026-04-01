@@ -650,13 +650,13 @@ async function main() {
 
     ensureDirectory(paths.managedSkillsDir);
     for (const skillSpec of skillSpecs) {
-      const targetDir = `${paths.managedSkillsDir}/${skillSpec.name}`;
+      const targetDir = `${paths.managedSkillsDir}/${skillSpec.managedDirName}`;
       const status = inspectSkillLink(targetDir, skillSpec.sourceDir);
       if (status.status === "correct_symlink" || status.status === "correct_directory") {
         actions.push({
           step: "link_skill",
           ok: true,
-          detail: `${skillSpec.name} already linked.`
+          detail: `${skillSpec.managedDirName} already linked.`
         });
         continue;
       }
@@ -673,14 +673,14 @@ async function main() {
             buildIssue(
               "warning",
               "SKILL_REPLACE_SKIPPED",
-              `Skipped replacing managed skill path for ${skillSpec.name}.`,
+              `Skipped replacing managed skill path for ${skillSpec.managedDirName}.`,
               `Replace ${targetDir} manually or rerun pnpm autoclaw:setup.`
             )
           );
           actions.push({
             step: "link_skill",
             ok: false,
-            detail: `Skipped replacing ${skillSpec.name}.`
+            detail: `Skipped replacing ${skillSpec.managedDirName}.`
           });
           continue;
         }
@@ -690,7 +690,7 @@ async function main() {
       actions.push({
         step: "link_skill",
         ok: true,
-        detail: `${skillSpec.name} -> ${skillSpec.sourceDir}`
+        detail: `${skillSpec.managedDirName} -> ${skillSpec.sourceDir}`
       });
     }
 

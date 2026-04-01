@@ -1,6 +1,6 @@
 ---
 name: caixu-build-package
-description: Use when the user wants export files and a submission bundle from an existing library. This skill loads the latest validated lifecycle result, a RuleProfileBundle, assets and parsed files, asks an agent to choose package contents, validates the decision, runs deterministic docgen exports, persists the package run with an audit sidecar, and prepares the final bundle for submit-demo.
+description: "Use when the user wants export files and a submission bundle from an existing library at the packaging stage, including “生成材料包”“导出资产总表和续办清单”“准备提交包”. Prefer caixu-skill when the user asks for the full end-to-end mainline or is unsure which stage to run. This skill loads the latest validated lifecycle result, a RuleProfileBundle, assets and parsed files, asks an agent to choose package contents, validates the decision, runs deterministic docgen exports, persists the package run with an audit sidecar, and prepares the final bundle for submit-demo."
 ---
 
 # build-package

@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { LocalFile, ParsedFile } from "@caixu/contracts";
+import { resolve } from "node:path";
 import {
   createOpenAICompatibleSkillModelClient,
   createMockSkillModelClient,
+  loadSkillBundle,
   normalizeQueryAssetsRequest,
   runBuildAssetLibrarySkill,
   runIngestRouteDecisionSkill
@@ -16,6 +18,16 @@ afterEach(() => {
 });
 
 describe("@caixu/skill-runner", () => {
+  it("loads the root skill bundle using the frontmatter name", async () => {
+    const bundle = await loadSkillBundle(repoRoot);
+
+    expect(bundle.skillName).toBe("caixu-skill");
+    expect(bundle.skillDir).toBe(resolve(repoRoot));
+    expect(bundle.references.map((reference) => reference.name)).toEqual(
+      expect.arrayContaining(["workflow.md", "tool-contracts.md", "failure-modes.md"])
+    );
+  });
+
   it("retries invalid build-asset responses and returns nullable uncertain fields", async () => {
     const parsedFiles: ParsedFile[] = [
       {

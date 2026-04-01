@@ -1599,9 +1599,17 @@ export async function loadSkillBundle(skillDir: string): Promise<SkillBundle> {
   const resolvedDir = resolve(skillDir);
   const skillMarkdown = await readFile(join(resolvedDir, "SKILL.md"), "utf8");
   const references = await readMarkdownFiles(join(resolvedDir, "references"));
+  const frontmatterMatch = skillMarkdown.match(/^---\n([\s\S]*?)\n---/u);
+  const frontmatterName = frontmatterMatch?.[1]
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.startsWith("name:"))
+    ?.slice("name:".length)
+    .trim()
+    .replace(/^['"]|['"]$/gu, "");
 
   return {
-    skillName: basename(resolvedDir),
+    skillName: frontmatterName || basename(resolvedDir),
     skillDir: resolvedDir,
     skillMarkdown,
     references

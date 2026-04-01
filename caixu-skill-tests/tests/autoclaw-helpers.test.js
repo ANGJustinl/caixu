@@ -8,7 +8,8 @@ import {
   detectAutoClawInstallation,
   inspectSkillLink,
   readEnvFile,
-  repoRoot
+  repoRoot,
+  skillSpecs
 } from "../../scripts/lib/autoclaw-helpers.mjs";
 
 const tempDirs = [];
@@ -131,5 +132,21 @@ describe("autoclaw helpers", () => {
     rmSync(targetDir, { recursive: true, force: true });
     symlinkSync(wrongSourceDir, targetDir, "dir");
     expect(inspectSkillLink(targetDir, sourceDir).status).toBe("wrong_symlink");
+  });
+
+  it("includes the root caixu-skill spec and can inspect a repo-root symlink", () => {
+    const rootSkill = skillSpecs.find((spec) => spec.skillName === "caixu-skill");
+    expect(rootSkill).toBeTruthy();
+    expect(rootSkill).toMatchObject({
+      managedDirName: "caixu-skill",
+      sourceDir: repoRoot,
+      skillFile: join(repoRoot, "SKILL.md"),
+      packageType: "root"
+    });
+
+    const dir = createTempDir();
+    const targetDir = join(dir, "caixu-skill");
+    symlinkSync(rootSkill.sourceDir, targetDir, "dir");
+    expect(inspectSkillLink(targetDir, rootSkill.sourceDir).status).toBe("correct_symlink");
   });
 });
