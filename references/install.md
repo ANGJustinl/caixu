@@ -12,7 +12,7 @@
 - 还没跑 `pnpm build`
 - `openclaw` 或 `mcporter` 不可用
 - AutoClaw profile 还没 onboard
-- 不确定 `caixu-skill` 和 7 个 phase skills 是否已挂到 AutoClaw
+- 不确定 `caixu-skill` 和默认 MVP phase skills 是否已挂到 AutoClaw
 - 不确定两个 MCP 是否已注册
 - 缺少下列任一关键 key 或 runtime config
 
@@ -30,7 +30,7 @@
 
 1. `tmux`
 2. 一个固定的演示目录
-3. 一个评委模式提交页地址
+3. 如需高级可选扩展，再准备一个评委模式提交页地址
 
 ## 必填 key 与 config
 
@@ -88,8 +88,7 @@ pnpm autoclaw:setup -- \
   --zhipu-parser-api-key YOUR_PARSER_KEY \
   --zhipu-ocr-api-key YOUR_OCR_KEY \
   --zhipu-vlm-api-key YOUR_GLM46V_KEY \
-  --sqlite-path /ABS/PATH/caixu.sqlite \
-  --judge-demo-url https://YOUR-DEMO-HOST/judge-demo
+  --sqlite-path /ABS/PATH/caixu.sqlite
 ```
 
 如果 AutoClaw profile 不在默认 `~/.openclaw-autoclaw`，加：
@@ -143,5 +142,5 @@ mcporter call caixu-data-mcp.reindex_library_search \
 - `mcporter` 不存在：先安装或修正 PATH
 - `pnpm build` 失败：先修编译问题，不继续向导
 - doctor 失败：优先重跑 `pnpm autoclaw:setup`，不要先手工改 JSON
-- 只有 `submit-demo` 相关配置缺失：如果当前不需要提交演示，可先继续资产库主线
+- 只有 `submit-demo` 相关配置缺失：这是高级可选扩展；如果当前不需要提交演示，可先继续个人资产库主线
 - 可选语义检索结果异常或不可用：先检查 embedding 环境变量、模型缓存目录与 `reindex_library_search` 是否已经完成

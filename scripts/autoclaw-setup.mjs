@@ -9,6 +9,7 @@ import {
   buildEnvFileContent,
   buildIssue,
   buildMcpServerSpecs,
+  defaultInstalledSkillSpecs,
   detectAutoClawInstallation,
   ensureDirectory,
   inspectSkillLink,
@@ -20,7 +21,6 @@ import {
   resolveStatus,
   runDoctorSuite,
   runProcess,
-  skillSpecs,
   summarizeRuntimeConfig,
   writeJson
 } from "./lib/autoclaw-helpers.mjs";
@@ -208,7 +208,7 @@ function printHelp() {
 
 Options:
   --autoclaw-home PATH   Explicit AutoClaw profile directory. Default: ~/.openclaw-autoclaw
-  --judge-demo-url URL   Judge demo URL
+  --judge-demo-url URL   Judge demo URL for optional submit-demo extension
   --agent-api-key KEY    Agent model key for build-asset-library/check-lifecycle/build-package
   --agent-model MODEL    Agent model code. Default: glm-4.6
   --agent-timeout-ms N   Single agent request timeout in milliseconds
@@ -649,7 +649,7 @@ async function main() {
     }
 
     ensureDirectory(paths.managedSkillsDir);
-    for (const skillSpec of skillSpecs) {
+    for (const skillSpec of defaultInstalledSkillSpecs) {
       const targetDir = `${paths.managedSkillsDir}/${skillSpec.managedDirName}`;
       const status = inspectSkillLink(targetDir, skillSpec.sourceDir);
       if (status.status === "correct_symlink" || status.status === "correct_directory") {

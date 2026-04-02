@@ -2,7 +2,7 @@
 
 ## Trigger examples
 
-- “把我这些材料建成资产库，列出未来 60 天需要续办或补办的事项，并生成一份暑期实习申请材料包，最后提交到演示页面。”
+- “把我这些材料建成资产库，列出未来 60 天需要续办或补办的事项，并生成一份暑期实习申请材料包。”
 - “帮我从头处理这批材料”
 - “我不知道现在应该先跑哪个 skill”
 
@@ -14,7 +14,10 @@
 4. 已有资产库，只是搜索、筛选、查询：`query-assets`
 5. 已有资产库，需要判断续办、补件、readiness：`check-lifecycle`
 6. 已有 validated lifecycle，需要导出 ledger / zip：`build-package`
-7. 已有 package run，需要提交到外部演示页：`submit-demo`
+
+高级可选扩展：
+
+- 已有 package run，且确实要提交到外部演示页时，才手动启用 `submit-demo`
 
 ## Stage boundary rules
 

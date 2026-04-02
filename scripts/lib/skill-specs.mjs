@@ -34,10 +34,20 @@ export const skillSpecs = [
   directorySkill("query-assets"),
   directorySkill("check-lifecycle"),
   directorySkill("build-package"),
-  directorySkill("submit-demo")
+  {
+    ...directorySkill("submit-demo"),
+    optionalInstall: true,
+    mvpCore: false
+  }
 ];
 
 export const expectedSkillNames = skillSpecs.map((spec) => spec.managedDirName);
+export const defaultInstalledSkillSpecs = skillSpecs.filter(
+  (spec) => spec.optionalInstall !== true
+);
+export const defaultExpectedSkillNames = defaultInstalledSkillSpecs.map(
+  (spec) => spec.managedDirName
+);
 
 export function listableSkillNames(spec) {
   return spec.skillName === spec.managedDirName

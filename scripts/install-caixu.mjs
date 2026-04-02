@@ -3,7 +3,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { repoRoot, skillSpecs } from "./lib/skill-specs.mjs";
+import { defaultInstalledSkillSpecs, repoRoot, skillSpecs } from "./lib/skill-specs.mjs";
 
 function fail(message) {
   console.error(`ERROR: ${message}`);
@@ -256,7 +256,7 @@ Options:
   --mcp-config-out PATH      Generated MCP config fragment path
   --skills-manifest-out PATH Generated skills manifest path
   --merge-mcp-config PATH    Merge generated MCP servers into an existing JSON file
-  --judge-demo-url URL       Judge demo URL
+  --judge-demo-url URL       Judge demo URL for optional submit-demo extension
   --agent-api-key KEY        Agent model API key
   --agent-model MODEL        Agent model code. Default: glm-4.6
   --zhipu-api-key KEY        Zhipu API key
@@ -453,14 +453,24 @@ function buildSkillsManifest() {
   return {
     generated_at: new Date().toISOString(),
     repo_root: repoRoot,
-    skills: skillSpecs.map((spec) => ({
+    skills: defaultInstalledSkillSpecs.map((spec) => ({
       name: spec.skillName,
       managed_dir_name: spec.managedDirName,
       route_name: spec.routeName,
       directory: spec.sourceDir,
       skill_file: spec.skillFile,
       package_type: spec.packageType
-    }))
+    })),
+    optional_skills: skillSpecs
+      .filter((spec) => spec.optionalInstall === true)
+      .map((spec) => ({
+        name: spec.skillName,
+        managed_dir_name: spec.managedDirName,
+        route_name: spec.routeName,
+        directory: spec.sourceDir,
+        skill_file: spec.skillFile,
+        package_type: spec.packageType
+      }))
   };
 }
 
@@ -481,12 +491,20 @@ function buildReport(options, launchScripts) {
       ocr: launchScripts.ocrScript,
       data: launchScripts.dataScript
     },
-    skills: skillSpecs.map((spec) => ({
+    skills: defaultInstalledSkillSpecs.map((spec) => ({
       name: spec.skillName,
       managed_dir_name: spec.managedDirName,
       directory: spec.sourceDir,
       package_type: spec.packageType
     })),
+    optional_skills: skillSpecs
+      .filter((spec) => spec.optionalInstall === true)
+      .map((spec) => ({
+        name: spec.skillName,
+        managed_dir_name: spec.managedDirName,
+        directory: spec.sourceDir,
+        package_type: spec.packageType
+      })),
     verification: {
       install_ran: !options.skipInstall,
       verify_ran: !options.skipVerify,
@@ -497,7 +515,7 @@ function buildReport(options, launchScripts) {
       `bash ${launchScripts.ocrScript}`,
       `bash ${launchScripts.dataScript}`,
       `Import ${options.mcpConfigOut} or merge it into your AutoClaw/OpenClaw MCP config.`,
-      `Register the 8 skills listed in ${options.skillsManifestOut}.`
+      `Register the default MVP skills listed in ${options.skillsManifestOut}. Optional advanced skills are listed separately.`
     ]
   };
 }

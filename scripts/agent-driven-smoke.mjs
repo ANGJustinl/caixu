@@ -547,7 +547,7 @@ async function main() {
           exported_ledgers: ledgers.exported_files,
           package_zip: zipPath,
           output_dir: outputDir,
-          submission_blocked_before_browser: true
+          mainline_end_stage: "build-package"
         },
         null,
         2

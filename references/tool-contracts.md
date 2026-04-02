@@ -8,7 +8,6 @@
 - `query-assets`
 - `check-lifecycle`
 - `build-package`
-- `submit-demo`
 
 ## Standard handoff fields
 
@@ -18,7 +17,6 @@
 - `goal`
 - `as_of_date`
 - `window_days`
-- `submission_profile`
 - `package_plan_id`
 - `package_id`
 
@@ -28,3 +26,8 @@
 - 返回当前阶段边界与最小缺失输入
 - `next_recommended_skill` 只使用短名 route id
 - 不直接输出 MCP tool 执行计划
+
+高级可选扩展：
+
+- `submit-demo` 不属于默认主线 route set
+- 只有在明确要做外部演示页提交时，才额外使用 `package_plan_id` 与 `submission_profile`

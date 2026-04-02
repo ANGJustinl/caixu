@@ -1,6 +1,6 @@
 ---
 name: caixu-skill
-description: "Main entry skill for 材序. Use when the user expresses the overall end-to-end intent in one request, including “把这些材料建成资产库”“列出未来 60 天需要续办或补办的事项”“生成暑期实习申请材料包”“最后提交到演示页面”, when the user wants to search materials by natural language but is unsure whether the local retrieval environment is ready, when the user is unsure which phase skill to run, or when the environment may not be installed yet. This skill routes only to the current child skill, sends first-time installation agents to references/install.md when keys, retrieval config, or runtime setup are missing, explains stage boundaries and next steps, and does not directly call MCP tools, extract files, build packages, or submit forms."
+description: "Main entry skill for 材序. Use when the user expresses the overall end-to-end intent in one request, including “把这些材料建成资产库”“列出未来 60 天需要续办或补办的事项”“生成暑期实习申请材料包”, when the user wants to search materials by natural language but is unsure whether the local retrieval environment is ready, when the user is unsure which phase skill to run, or when the environment may not be installed yet. This skill routes only to the current child skill, sends first-time installation agents to references/install.md when keys, retrieval config, or runtime setup are missing, explains stage boundaries and next steps, and does not directly call MCP tools, extract files, build packages, or submit forms."
 ---
 
 # caixu-skill
@@ -24,7 +24,8 @@ description: "Main entry skill for 材序. Use when the user expresses the overa
 ## Required tools
 
 - 不直接调用 MCP tools
-- 只路由到子 skill：`ingest-materials`、`build-asset-library`、`maintain-asset-library`、`query-assets`、`check-lifecycle`、`build-package`、`submit-demo`
+- 只路由到默认 MVP 子 skill：`ingest-materials`、`build-asset-library`、`maintain-asset-library`、`query-assets`、`check-lifecycle`、`build-package`
+- `submit-demo` 是高级可选扩展，不属于默认 route
 
 ## Required input
 
@@ -36,10 +37,11 @@ description: "Main entry skill for 材序. Use when the user expresses the overa
 1. 如果用户表达整条主线，或没有明确自己处在哪个阶段，先使用 `caixu-skill`。
 2. 如果这是第一次安装，或当前缺 key、缺 profile、缺 MCP/skills 注册，先读 `references/install.md`，引导完成安装和验活。
 3. 如果用户想做自然语言材料检索或显式要求语义扩展检索，且本地检索增强是否可用不明确，也先读 `references/install.md`，确认 embedding 配置和旧库索引是否已完成。
-4. 环境就绪后，再区分当前是 raw materials ingest、资产建库、资产维护、资产查询、生命周期判断、打包导出，还是最终提交。
+4. 环境就绪后，再区分当前是 raw materials ingest、资产建库、资产维护、资产查询、生命周期判断，还是打包导出。
 5. 一次只选择一个当前阶段子 skill，不在这里展开整条流水线执行。
 6. 返回当前阶段边界、最小缺失输入，以及一个短名 `next_recommended_skill`。
 7. 路由完成后停止；后续执行责任属于对应子 skill。
+8. 如果用户明确要求外部演示页自动提交，再说明这是高级可选扩展，并引导查看扩展文档或手动启用 `submit-demo`。
 
 ## Guardrails
 

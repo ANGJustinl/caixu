@@ -15,9 +15,22 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { expectedSkillNames, listableSkillNames, repoRoot, skillSpecs } from "./skill-specs.mjs";
+import {
+  defaultExpectedSkillNames,
+  defaultInstalledSkillSpecs,
+  expectedSkillNames,
+  listableSkillNames,
+  repoRoot,
+  skillSpecs
+} from "./skill-specs.mjs";
 
-export { expectedSkillNames, repoRoot, skillSpecs };
+export {
+  defaultExpectedSkillNames,
+  defaultInstalledSkillSpecs,
+  expectedSkillNames,
+  repoRoot,
+  skillSpecs
+};
 export const defaultJudgeDemoUrl = "http://127.0.0.1:3000/judge-demo";
 export const defaultParseMode = "auto";
 export const defaultFileBatchSize = "6";
@@ -810,7 +823,7 @@ export async function runDoctorSuite(paths, runtimeConfig) {
     ? parsedSkillsList.skills.map((skill) => String(skill.name))
     : [];
 
-  for (const spec of skillSpecs) {
+  for (const spec of defaultInstalledSkillSpecs) {
     const targetDir = join(paths.managedSkillsDir, spec.managedDirName);
     const linkStatus = inspectSkillLink(targetDir, spec.sourceDir);
     const acceptableSkillNames = new Set(listableSkillNames(spec));
